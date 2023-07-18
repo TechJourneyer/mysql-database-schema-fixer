@@ -21,7 +21,7 @@ To use the Mysql Database Schema Fixer Tool, ensure that you have the following:
 2. Navigate to the repository directory:
 
    ```
-   cd database-schema-fixer
+   cd mysql-database-schema-fixer
    ```
 
 3. Rename `sample_config.php` to `config.php` and update the database credentials for the development and production environments:
@@ -53,7 +53,7 @@ To use the Mysql Database Schema Fixer Tool, ensure that you have the following:
    - Connect to the development and production databases.
    - Retrieve the list of tables from both databases.
    - Identify missing tables in the development database compared to the production database and export the results to a JSON file.
-   - Get table details (columns, triggers, indexes) for both environments and export the results to a JSON file.
+   - Get table details (columns, triggers, and indexes) for both environments and export the results to a JSON file.
    - Compare the schema between the environments and generate SQL queries for missing tables, columns, triggers, and indexes.
    - Store the generated SQL queries in a sql file .
 
