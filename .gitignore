@@ -1,0 +1,10 @@
+# Ignore config files
+config.php
+
+# Ignore all files in the exports directory except index.php
+exports/*
+!exports/index.php
+
+# Ignore all files in the sql directory except index.php
+sql/*
+!sql/index.php
