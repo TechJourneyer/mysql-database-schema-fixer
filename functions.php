@@ -1,15 +1,15 @@
 <?php 
 
-
-// Function to get a list of tables from a database
-function getTables($credentials)
-{
-    $conn = new PDO(
-        "mysql:host={$credentials['host']};dbname={$credentials['database']}",
-        $credentials['username'],
-        $credentials['password']
+function get_db_connection($db){
+    return new PDO(
+        "mysql:host={$db['host']};dbname={$db['database']}",
+        $db['username'],
+        $db['password']
     );
-
+}
+// Function to get a list of tables from a database
+function getTables($conn)
+{
     $stmt = $conn->query("SHOW TABLES");
     $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
@@ -152,51 +152,51 @@ function generateQueriesToRemoveExtraTables($extraTables,$conn){
     return $removeExtraTablesQueries;
 }
 
-function getMissingEntities($prodTables, $devTables) {
+function getMissingEntities($targetDbTables, $sourceDbTables) {
     $missingEntities = [];
 
-    foreach ($prodTables as $tableName => $prodTableData) {
-        if (!isset($devTables[$tableName])) {
+    foreach ($targetDbTables as $tableName => $targetDbTableData) {
+        if (!isset($sourceDbTables[$tableName])) {
             continue;
         }
 
-        $devTableData = $devTables[$tableName];
+        $sourceDbTableData = $sourceDbTables[$tableName];
 
-        $missingColumns = array_udiff($prodTableData['columns'], $devTableData['columns'], function($a, $b) {
+        $missingColumns = array_udiff($targetDbTableData['columns'], $sourceDbTableData['columns'], function($a, $b) {
             return strcmp($a['Field'], $b['Field']);
         });
 
-        $extraColumns = array_udiff($devTableData['columns'], $prodTableData['columns'], function($a, $b) {
+        $extraColumns = array_udiff($sourceDbTableData['columns'], $targetDbTableData['columns'], function($a, $b) {
             return strcmp($a['Field'], $b['Field']);
         });
 
-        $modifiedColumns = array_filter($missingColumns, function($expectedColumn) use ($devTableData) {
-            $devColumns = $devTableData['columns'];
-            $devColumn = array_filter($devColumns, function($devColumn) use ($expectedColumn) {
-                return $devColumn['Field'] === $expectedColumn['Field'];
+        $modifiedColumns = array_filter($missingColumns, function($expectedColumn) use ($sourceDbTableData) {
+            $sourceDbColumns = $sourceDbTableData['columns'];
+            $sourceDbColumn = array_filter($sourceDbColumns, function($sourceDbColumn) use ($expectedColumn) {
+                return $sourceDbColumn['Field'] === $expectedColumn['Field'];
             });
-            return !empty($devColumn) && !(
-                $expectedColumn['Type'] == $devColumn[0]['Type'] &&
-                $expectedColumn['Null'] == $devColumn[0]['Null'] &&
-                $expectedColumn['Key'] == $devColumn[0]['Key'] &&
-                $expectedColumn['Default'] == $devColumn[0]['Default'] &&
-                $expectedColumn['Extra'] == $devColumn[0]['Extra']
+            return !empty($sourceDbColumn) && !(
+                $expectedColumn['Type'] == $sourceDbColumn[0]['Type'] &&
+                $expectedColumn['Null'] == $sourceDbColumn[0]['Null'] &&
+                $expectedColumn['Key'] == $sourceDbColumn[0]['Key'] &&
+                $expectedColumn['Default'] == $sourceDbColumn[0]['Default'] &&
+                $expectedColumn['Extra'] == $sourceDbColumn[0]['Extra']
             );
         });
 
-        $missingTriggers = array_udiff($prodTableData['triggers'], $devTableData['triggers'], function($a, $b) {
+        $missingTriggers = array_udiff($targetDbTableData['triggers'], $sourceDbTableData['triggers'], function($a, $b) {
             return strcmp($a['Trigger'], $b['Trigger']);
         });
 
-        $extraTriggers = array_udiff($devTableData['triggers'], $prodTableData['triggers'], function($a, $b) {
+        $extraTriggers = array_udiff($sourceDbTableData['triggers'], $targetDbTableData['triggers'], function($a, $b) {
             return strcmp($a['Trigger'], $b['Trigger']);
         });
 
-        $missingIndexes = array_udiff($prodTableData['indexes'], $devTableData['indexes'], function($a, $b) {
+        $missingIndexes = array_udiff($targetDbTableData['indexes'], $sourceDbTableData['indexes'], function($a, $b) {
             return strcmp($a['Key_name'], $b['Key_name']);
         });
 
-        $extraIndexes = array_udiff($devTableData['indexes'], $prodTableData['indexes'], function($a, $b) {
+        $extraIndexes = array_udiff($sourceDbTableData['indexes'], $targetDbTableData['indexes'], function($a, $b) {
             return strcmp($a['Key_name'], $b['Key_name']);
         });
 
@@ -303,4 +303,13 @@ function generateQueriesForMismatchEntities($missingEntities){
         }
     }
     return $queries;
+}
+
+function response($success,$message,$output=[]){
+    echo json_encode([
+        'success' => $success,
+        'message' => $message,
+        'output' => $output
+    ]);
+    exit;
 }
