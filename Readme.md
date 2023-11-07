@@ -18,37 +18,13 @@ To use the Mysql Database Schema Fixer Tool, ensure that you have the following:
    git clone https://github.com/TechJourneyer/mysql-database-schema-fixer.git
    ```
 
-2. Navigate to the repository directory:
-
+2. Run the web server:
+   
    ```
-   cd mysql-database-schema-fixer
-   ```
-
-3. Rename `sample_config.php` to `config.php` and update the database credentials for the development and production environments:
-
-   ```php
-   $devCredentials = [
-       'host' => 'dev-database-host',
-       'database' => 'dev-database-name',
-       'username' => 'dev-username',
-       'password' => 'dev-password',
-   ];
-
-   $prodCredentials = [
-       'host' => 'prod-database-host',
-       'database' => 'prod-database-name',
-       'username' => 'prod-username',
-       'password' => 'prod-password',
-   ];
+   http://localhost/mysql-database-schema-fixer/
    ```
 
-4. Run the script:
-
-   ```
-   php index.php
-   ```
-
-5. The tool will perform the following actions:
+3. The tool will perform the following actions:
 
    - Connect to the development and production databases.
    - Retrieve the list of tables from both databases.
@@ -57,5 +33,5 @@ To use the Mysql Database Schema Fixer Tool, ensure that you have the following:
    - Compare the schema between the environments and generate SQL queries for missing tables, columns, triggers, and indexes.
    - Store the generated SQL queries in a sql file .
 
-6. Review the generated SQL file to see the queries that need to be executed to fix the schema discrepancies.
+4. Review the generated SQL file to see the queries that need to be executed to fix the schema discrepancies.
 
